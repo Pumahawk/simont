@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/pumahawk/simont/libs/core"
 )
@@ -59,7 +60,7 @@ func LoadPath() (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("load path conf: %w", err)
 		}
-		return fmt.Sprintf("%s/.simont", home), nil
+		return filepath.Join(home, ".simont", home), nil
 	} else {
 		return confPath, nil
 	}

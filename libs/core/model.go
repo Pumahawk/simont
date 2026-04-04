@@ -4,7 +4,8 @@ type State int16
 
 const (
 	Ok State = iota
-	Error
+	Warning
+	ConnectionError
 )
 
 type Cluster struct {
@@ -15,7 +16,8 @@ type Cluster struct {
 
 type ClusterState struct {
 	Cluster
-	State
+	State           State
+	NamespacesState []NamespaceState
 }
 
 type Namespace struct {
@@ -24,4 +26,14 @@ type Namespace struct {
 }
 
 type NamespaceState struct {
+	State State
+	Namespace
+	Services []Service
+}
+
+type Service struct {
+	State
+	Message string
+	Name    string
+	Pod     string
 }
