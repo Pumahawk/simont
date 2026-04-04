@@ -75,6 +75,7 @@ func LoadConf() (*AppConfig, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open file %q: %w", path, err)
 	}
+	defer file.Close()
 	var confj appconfj
 	err = json.NewDecoder(file).Decode(&confj)
 	if err != nil {
