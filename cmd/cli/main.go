@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/pumahawk/simont/libs/conf"
-	"github.com/pumahawk/simont/libs/kube"
+	"github.com/pumahawk/simont/libs/svc"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	clusters := conf.Clusters()
 	for _, c := range clusters {
 		log.Printf("Load configuration %q", c.Name)
-		if cs, err := kube.GetClusterState(context.TODO(), &c); err != nil {
+		if cs, err := svc.GetClusterState(context.TODO(), &c); err != nil {
 			log.Printf("ERROR - info from cluster %q: %s", c.Name, err)
 		} else {
 			for _, ns := range cs.NamespacesState {
