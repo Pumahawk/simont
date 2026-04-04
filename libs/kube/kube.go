@@ -10,6 +10,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+const kapplabel = "app.kubernetes.io/name"
+
 var clients = make(map[string]*Client)
 
 func GetClient(kubeconfig string) (*Client, error) {
@@ -39,4 +41,8 @@ type Client struct {
 func (c *Client) Pods(ctx context.Context, ns string) (*apiv1.PodList, error) {
 	podsClient := c.kclient.CoreV1().Pods(ns)
 	return podsClient.List(ctx, metav1.ListOptions{})
+}
+
+func AppName(pod *apiv1.Pod) string {
+	return pod.Labels[kapplabel]
 }

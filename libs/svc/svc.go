@@ -10,6 +10,31 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
+type watchService = map[string]*svcInfo
+
+var ws = watchService{
+	"authentication-provider":        {true},
+	"ejbca-community-helm":           {false},
+	"fe-authentication-provider":     {true},
+	"fe-identity-provider":           {false},
+	"fe-onboarding":                  {false},
+	"fe-security-attribute-provider": {false},
+	"fe-users-and-roles":             {true},
+	"identity-provider":              {false},
+	"keycloak":                       {true},
+	"onboarding":                     {false},
+	"redis":                          {true},
+	"security-attributes-provider":   {false},
+	"tier1-gateway":                  {true},
+	"tier2-gateway":                  {true},
+	"tier2-proxy":                    {true},
+	"users-roles":                    {true},
+}
+
+type svcInfo struct {
+	InParticipant bool
+}
+
 func GetClusterState(ctx context.Context, c *core.Cluster) (*core.ClusterState, error) {
 	client, err := kube.GetClient(c.ConfigPath)
 	if err != nil {
@@ -35,18 +60,21 @@ func GetClusterState(ctx context.Context, c *core.Cluster) (*core.ClusterState, 
 			Namespace: ns,
 		}
 		for _, pod := range podsns[ns.Name] {
-			service := core.Service{
-				Name: pod.Name,
-				Pod:  pod.Name,
-			}
-			service.State = core.Ok
-			for _, st := range pod.Status.ContainerStatuses {
-				if !st.Ready {
-					nss.State = core.Warning
-					service.State = core.Warning
+			appName := kube.AppName(pod)
+			if s := ws[appName]; s != nil && (ns.IsAuthority || s.InParticipant) {
+				service := core.Service{
+					Name: appName,
+					Pod:  pod.Name,
 				}
+				service.State = core.Ok
+				for _, st := range pod.Status.ContainerStatuses {
+					if !st.Ready {
+						nss.State = core.Warning
+						service.State = core.Warning
+					}
+				}
+				nss.Services = append(nss.Services, service)
 			}
-			nss.Services = append(nss.Services, service)
 		}
 		nsss = append(nsss, nss)
 	}
