@@ -33,7 +33,7 @@ func GetClusterState(ctx context.Context, c *core.Cluster) (*core.ClusterState, 
 		}
 	}
 
-	nsss := make([]core.NamespaceState, len(c.Namespaces))
+	nsss := make([]core.NamespaceState, 0, len(c.Namespaces))
 	for _, ns := range c.Namespaces {
 		nss := core.NamespaceState{
 			Namespace: ns,

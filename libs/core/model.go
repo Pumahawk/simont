@@ -8,6 +8,18 @@ const (
 	ConnectionError
 )
 
+func (s State) String() string {
+	switch s {
+	case Ok:
+		return "OK"
+	case Warning:
+		return "WARNING"
+	case ConnectionError:
+		return "CONNECTION-ERROR"
+	}
+	return "UNKNOWN"
+}
+
 type Cluster struct {
 	Name       string
 	ConfigPath string

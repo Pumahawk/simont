@@ -42,7 +42,7 @@ func (a *AppConfig) Clusters() []core.Cluster {
 			IsAuthority: ns.IsAuthority,
 		})
 	}
-	cls := make([]core.Cluster, len(a.appconfj.Clusters))
+	cls := make([]core.Cluster, 0, len(a.appconfj.Clusters))
 	for _, cl := range a.appconfj.Clusters {
 		cls = append(cls, core.Cluster{
 			Name:       cl.Name,
@@ -60,7 +60,7 @@ func LoadPath() (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("load path conf: %w", err)
 		}
-		return filepath.Join(home, ".simont", home), nil
+		return filepath.Join(home, ".simont.json"), nil
 	} else {
 		return confPath, nil
 	}
