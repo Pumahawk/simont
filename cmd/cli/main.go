@@ -13,15 +13,25 @@ import (
 
 func main() {
 	flag.Parse()
-	log.Println("Load configuration")
 	conf, err := conf.LoadConf()
 	if err != nil {
-		log.Fatalf("INFO - invalid configuration: %s", err)
+		log.Fatalf("ERROR - invalid configuration: %s", err)
 	}
 	clusters := conf.Clusters()
+	type res struct {
+		cs  *core.ClusterState
+		err error
+	}
+	ch := make(chan res)
 	for _, c := range clusters {
-		log.Printf("Load configuration %q", c.Name)
-		if cs, err := svc.GetClusterState(context.TODO(), &c); err != nil {
+		go func(c core.Cluster) {
+			r, err := svc.GetClusterState(context.TODO(), &c)
+			ch <- res{r, err}
+		}(c)
+	}
+	for _, c := range clusters {
+		r := <-ch
+		if cs, err := r.cs, r.err; err != nil {
 			log.Printf("ERROR - info from cluster %q: %s", c.Name, err)
 		} else {
 			for _, ns := range cs.NamespacesState {
