@@ -1,59 +1,30 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
-	"log"
-
-	"github.com/pumahawk/simont/libs/conf"
-	"github.com/pumahawk/simont/libs/core"
-	"github.com/pumahawk/simont/libs/svc"
 )
+
+var Commands = []*Command{
+	LsCommand,
+}
 
 func main() {
 	flag.Parse()
-	conf, err := conf.LoadConf()
-	if err != nil {
-		log.Fatalf("ERROR - invalid configuration: %s", err)
-	}
-	clusters := conf.Clusters()
-	type res struct {
-		cs  *core.ClusterState
-		err error
-	}
-	ch := make(chan res)
-	for _, c := range clusters {
-		go func(c core.Cluster) {
-			r, err := svc.GetClusterState(context.TODO(), &c)
-			ch <- res{r, err}
-		}(c)
-	}
-	for _, c := range clusters {
-		r := <-ch
-		if cs, err := r.cs, r.err; err != nil {
-			log.Printf("ERROR - info from cluster %q: %s", c.Name, err)
-		} else {
-			for _, ns := range cs.NamespacesState {
-				state := state(true)
-				for _, svc := range ns.Services {
-					if svc.State != core.Ok {
-						state = false
-						break
-					}
-				}
-				fmt.Printf("%s %s %s\n", state, cs.Name, ns.Name)
+	args := flag.Args()
+	if len(args) > 0 {
+		for _, c := range Commands {
+			if args[0] == c.Name {
+				c.Run(c, args)
+				return
 			}
 		}
 	}
+	PrintAllCommands()
 }
 
-type state bool
-
-func (s state) String() string {
-	if s {
-		return "[X]"
-	} else {
-		return "[_]"
+func PrintAllCommands() {
+	for _, c := range Commands {
+		fmt.Printf("%s - %s\n", c.Name, c.Descr)
 	}
 }
