@@ -13,7 +13,7 @@ import (
 var LsCommand = &Command{
 	Name:  "ls",
 	Descr: "Retrieve status of all clusters",
-	Run: func(c *Command, args []string) {
+	Run: func(c *Command, args []string) int {
 		conf, err := conf.LoadConf()
 		if err != nil {
 			log.Fatalf("ERROR - invalid configuration: %s", err)
@@ -30,6 +30,7 @@ var LsCommand = &Command{
 				ch <- res{r, err}
 			}(c)
 		}
+		gstate := state(true)
 		for _, c := range clusters {
 			r := <-ch
 			if cs, err := r.cs, r.err; err != nil {
@@ -37,6 +38,7 @@ var LsCommand = &Command{
 			} else {
 				for _, ns := range cs.NamespacesState {
 					state := state(true)
+					gstate = state
 					for _, svc := range ns.Services {
 						if svc.State != core.Ok {
 							state = false
@@ -46,6 +48,11 @@ var LsCommand = &Command{
 					fmt.Printf("%s %s %s\n", state, cs.Name, ns.Name)
 				}
 			}
+		}
+		if gstate {
+			return 0
+		} else {
+			return 1
 		}
 	},
 }

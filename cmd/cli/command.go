@@ -1,6 +1,6 @@
 package main
 
-type CommandFunc = func(*Command, []string)
+type CommandFunc = func(*Command, []string) int
 
 type Command struct {
 	Name  string
