@@ -5,7 +5,7 @@ type State int16
 const (
 	Ok State = iota
 	Warning
-	ConnectionError
+	Error
 )
 
 func (s State) String() string {
@@ -14,7 +14,7 @@ func (s State) String() string {
 		return "OK"
 	case Warning:
 		return "WARNING"
-	case ConnectionError:
+	case Error:
 		return "CONNECTION-ERROR"
 	}
 	return "UNKNOWN"

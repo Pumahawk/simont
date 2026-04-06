@@ -36,14 +36,18 @@ type svcInfo struct {
 }
 
 func GetClusterState(ctx context.Context, c *core.Cluster) (*core.ClusterState, error) {
+	cse := &core.ClusterState{
+		State:   core.Error,
+		Cluster: *c,
+	}
 	client, err := kube.GetClient(c.ConfigPath)
 	if err != nil {
-		return nil, err
+		return cse, err
 	}
 
 	podsns := make(map[string][]*apiv1.Pod)
 	if pods, err := client.Pods(ctx, ""); err != nil {
-		return nil, fmt.Errorf("get cluster state %q: %w", c.Name, err)
+		return cse, fmt.Errorf("get cluster state %q: %w", c.Name, err)
 	} else {
 		for _, pod := range pods.Items {
 			if slices.ContainsFunc(c.Namespaces, func(ns core.Namespace) bool {
