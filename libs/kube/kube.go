@@ -3,6 +3,7 @@ package kube
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,20 +13,20 @@ import (
 
 const kapplabel = "app.kubernetes.io/name"
 
-var wclients = make(chan int, 1)
+var wclients sync.Mutex
 var clients = make(clientStore)
 
 type clientStore map[string]*Client
 
 func (c clientStore) Get(key string) *Client {
-	wclients <- 1
-	defer func() { <-wclients }()
+	wclients.Lock()
+	defer wclients.Unlock()
 	return clients[key]
 }
 
 func (c clientStore) Set(key string, client *Client) {
-	wclients <- 1
-	defer func() { <-wclients }()
+	wclients.Lock()
+	defer wclients.Unlock()
 	clients[key] = client
 }
 
