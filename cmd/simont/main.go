@@ -5,6 +5,9 @@ import (
 	"fmt"
 )
 
+var errorOnly = flag.Bool("error-only", false, "Show only namespaces with errors")
+var confPath *string = flag.String("config", "", "Configuration path. Default: $HOME/.simont")
+
 var Commands = []*Command{
 	LsCommand,
 	InspectCommand,

@@ -19,7 +19,7 @@ var InspectCommand = &Command{
 		}
 		clusterName := args[0]
 		namespace := args[1]
-		ac, err := conf.LoadConf()
+		ac, err := conf.LoadConf(*confPath)
 		if err != nil {
 			fmt.Printf("inspect read config: %s\n", err)
 			return 1
@@ -40,7 +40,9 @@ var InspectCommand = &Command{
 				for _, svc := range nss.Services {
 					state := state(svc.State == core.Ok)
 					gstate = gstate && state
-					fmt.Printf("%s %s %s %s\n", state, cstate.Name, nss.Name, svc.Pod)
+					if !*errorOnly || !bool(state) {
+						fmt.Printf("%s %s %s %s\n", state, cstate.Name, nss.Name, svc.Pod)
+					}
 				}
 			}
 		}

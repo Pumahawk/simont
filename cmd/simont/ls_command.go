@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"sync"
@@ -17,12 +16,7 @@ var LsCommand = &Command{
 	Descr: "Retrieve status of all clusters",
 	Run: func(c *Command, args []string) int {
 
-		// Load flags
-		fs := flag.NewFlagSet("ls", flag.ExitOnError)
-		errorOnly := fs.Bool("error-only", false, "Show only namespaces with errors")
-		fs.Parse(args)
-
-		conf, err := conf.LoadConf()
+		conf, err := conf.LoadConf(*confPath)
 		if err != nil {
 			log.Fatalf("ERROR - invalid configuration: %s", err)
 		}

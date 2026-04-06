@@ -2,19 +2,12 @@ package conf
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/pumahawk/simont/libs/core"
 )
-
-var confPath *string = flag.String("config", "", "Configuration path. Default: $HOME/.simont")
-
-func ConfigPath() string {
-	return *confPath
-}
 
 type clusterj struct {
 	Name       string
@@ -53,21 +46,20 @@ func (a *AppConfig) Clusters() []core.Cluster {
 	return cls
 }
 
-func LoadPath() (string, error) {
-	confPath := *confPath
-	if confPath == "" {
+func LoadPath(configPath string) (string, error) {
+	if configPath == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
 			return "", fmt.Errorf("load path conf: %w", err)
 		}
 		return filepath.Join(home, ".simont.json"), nil
 	} else {
-		return confPath, nil
+		return configPath, nil
 	}
 }
 
-func LoadConf() (*AppConfig, error) {
-	path, err := LoadPath()
+func LoadConf(configPath string) (*AppConfig, error) {
+	path, err := LoadPath(configPath)
 	if err != nil {
 		return nil, err
 	}
