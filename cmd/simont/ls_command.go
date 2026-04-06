@@ -57,7 +57,7 @@ var LsCommand = &Command{
 						}
 					}
 					if !*errorOnly || !bool(state) {
-						fmt.Printf("%s %s %s\n", state, cs.Name, ns.Name)
+						fmt.Printf("%s %s %s %s\n", state, cs.Name, ns.Name, ns.Message)
 					}
 				}
 			}

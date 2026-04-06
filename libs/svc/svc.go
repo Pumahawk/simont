@@ -80,7 +80,7 @@ func GetClusterState(ctx context.Context, c *core.Cluster) (*core.ClusterState, 
 						}
 						nss.State = core.Warning
 						service.State = core.Warning
-						nss.Message = service.Message
+						nss.Message = fmt.Sprintf("Pod: %s, %s", pod.Name, service.Message)
 						break
 					}
 				}
