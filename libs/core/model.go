@@ -38,7 +38,8 @@ type Namespace struct {
 }
 
 type NamespaceState struct {
-	State State
+	State   State
+	Message string
 	Namespace
 	Services []Service
 }

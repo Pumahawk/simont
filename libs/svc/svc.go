@@ -73,8 +73,15 @@ func GetClusterState(ctx context.Context, c *core.Cluster) (*core.ClusterState, 
 				service.State = core.Ok
 				for _, st := range pod.Status.ContainerStatuses {
 					if !st.Ready {
+						if s := st.LastTerminationState.Terminated; s != nil {
+							service.Message = fmt.Sprintf("ExitCode: %d, Reason: %q", s.ExitCode, s.Reason)
+						} else if s := st.State.Waiting; s != nil {
+							service.Message = fmt.Sprintf("Reason: %q", s.Reason)
+						}
 						nss.State = core.Warning
 						service.State = core.Warning
+						nss.Message = service.Message
+						break
 					}
 				}
 				nss.Services = append(nss.Services, service)
