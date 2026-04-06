@@ -12,10 +12,25 @@ import (
 
 const kapplabel = "app.kubernetes.io/name"
 
-var clients = make(map[string]*Client)
+var wclients = make(chan int, 1)
+var clients = make(clientStore)
+
+type clientStore map[string]*Client
+
+func (c clientStore) Get(key string) *Client {
+	wclients <- 1
+	defer func() { <-wclients }()
+	return clients[key]
+}
+
+func (c clientStore) Set(key string, client *Client) {
+	wclients <- 1
+	defer func() { <-wclients }()
+	clients[key] = client
+}
 
 func GetClient(kubeconfig string) (*Client, error) {
-	if client := clients[kubeconfig]; client != nil {
+	if client := clients.Get(kubeconfig); client != nil {
 		return client, nil
 	}
 	conf, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -26,8 +41,9 @@ func GetClient(kubeconfig string) (*Client, error) {
 	if err != nil {
 		panic(err)
 	}
-	clients[kubeconfig] = &Client{kc}
-	return clients[kubeconfig], nil
+	client := &Client{kc}
+	clients.Set(kubeconfig, client)
+	return client, nil
 }
 
 type PodOptions struct {
