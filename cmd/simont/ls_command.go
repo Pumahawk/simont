@@ -57,11 +57,12 @@ var LsCommand = &Command{
 						}
 					}
 					if !*errorOnly || !bool(state) {
-						fmt.Printf("%s %s %s %s\n", state, cs.Name, ns.Name, ns.Message)
+						fmt.Fprintf(tabw, "%s\t%s\t%s\t%s\n", state, cs.Name, ns.Name, ns.Message)
 					}
 				}
 			}
 		}
+		tabw.Flush()
 		if gstate {
 			return 0
 		} else {

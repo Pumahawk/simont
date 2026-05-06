@@ -41,11 +41,12 @@ var InspectCommand = &Command{
 					state := state(svc.State == core.Ok)
 					gstate = gstate && state
 					if !*errorOnly || !bool(state) {
-						fmt.Printf("%s %s %s %s %s\n", state, cstate.Name, nss.Name, svc.Pod, svc.Message)
+						fmt.Fprintf(tabw, "%s\t%s\t%s\t%s\t%s\n", state, cstate.Name, nss.Name, svc.Pod, svc.Message)
 					}
 				}
 			}
 		}
+		tabw.Flush()
 		if gstate {
 			return 0
 		} else {
